@@ -1,2 +1,2 @@
 # MrAnnotate
-A data labelling tool
+A data labelling tool.
