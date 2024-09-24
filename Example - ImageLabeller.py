@@ -1,11 +1,12 @@
 from pathlib import Path
+import mrannotate as anon
 
-from mrannotate import ImageLabeller
+print(anon.__version__)
 
 image_paths = list(Path("data", "image_label_ex").glob("*.jpg"))
 labels = ["Abstract", "Harry Potter", "Spider man", "Space"]
 
-il = ImageLabeller(
+il = anon.ImageLabeller(
     image_paths,
     labels
 )
