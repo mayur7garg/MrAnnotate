@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from MrAnnotate import ImageLabeller
+from mrannotate import ImageLabeller
 
 image_paths = list(Path("data", "image_label_ex").glob("*.jpg"))
 labels = ["Abstract", "Harry Potter", "Spider man", "Space"]
