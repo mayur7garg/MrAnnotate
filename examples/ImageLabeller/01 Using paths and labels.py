@@ -3,7 +3,7 @@ import mrannotate as anon
 
 print(f"Version: {anon.__version__}")
 
-image_paths = list(Path("data", "image_label_ex").glob("*.jpg"))
+image_paths = list(Path("..", "..", "data", "image_label_ex").glob("*.jpg"))
 labels = ["Abstract", "Harry Potter", "Spider man", "Space"]
 
 il = anon.ImageLabeller(
