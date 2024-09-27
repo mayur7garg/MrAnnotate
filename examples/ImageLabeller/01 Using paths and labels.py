@@ -1,7 +1,7 @@
 from pathlib import Path
 import mrannotate as anon
 
-print(anon.__version__)
+print(f"Version: {anon.__version__}")
 
 image_paths = list(Path("data", "image_label_ex").glob("*.jpg"))
 labels = ["Abstract", "Harry Potter", "Spider man", "Space"]
@@ -11,7 +11,7 @@ il = anon.ImageLabeller(
     labels
 )
 
-il.run()
+il.run(start_index = 2)
 
-for i in range(len(image_paths)):
-    print(f"{image_paths[i].stem} - {labels[il.img_labels[i]]}")
+for p, l in il.img_labels.items():
+    print(f"{p} : {l if l is None else il.labels[l]}")
