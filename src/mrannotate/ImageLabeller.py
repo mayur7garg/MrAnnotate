@@ -71,7 +71,6 @@ class ImageLabeller():
             self._curr_img_index = max(int(start_index), 0) % len(self.image_paths)
 
         window = tk.Tk()
-        window.title(f"Image Labeller - {len(self.image_paths)} images, {len(self.labels)} labels")
         window.resizable(False, False)
 
         img_canvas = tk.Canvas(window, width = self.canvas_width, height = self.img_max_height)
@@ -80,7 +79,10 @@ class ImageLabeller():
         detail_canvas = tk.Canvas(window, width = self.canvas_width, height = 30)
         detail_canvas.pack(pady = 5)
 
-        label_canvas = tk.Canvas(window, width = self.canvas_width, height = 200)
+        new_label_canvas = tk.Canvas(window, width = self.canvas_width // 3, height = 30, highlightthickness = 0)
+        new_label_canvas.pack(pady = 10)
+
+        label_canvas = tk.Canvas(window, width = self.canvas_width, height = 100, highlightthickness = 0)
         label_canvas.pack(pady = 10)
 
         btn_canvas = tk.Canvas(window, width = self.canvas_width, height = 50)
@@ -101,7 +103,7 @@ class ImageLabeller():
         img_title = detail_canvas.create_text(
             self.canvas_width // 2,
             15,
-            text = self._curr_img_path.stem,
+            text = f"{self._curr_img_path.stem} ({img.width()} x {img.height()})",
             fill = "black",
             font = "Helvetica 14 bold",
             anchor = tk.CENTER
@@ -122,17 +124,44 @@ class ImageLabeller():
                 self.img_max_height
             )
             img_canvas.itemconfig(img_container, image = img)
-            detail_canvas.itemconfig(img_title, text = self._curr_img_path.stem)
+            detail_canvas.itemconfig(
+                img_title,
+                text = f"{self._curr_img_path.stem} ({img.width()} x {img.height()})"
+            )
         
         def clear_label():
             current_label.set(None)
+        
+        def remove_label(i: int):
+            for k, v in self.img_labels.items():
+                if v is not None:
+                    if v == i:
+                        self.img_labels[k] = None
+                    elif v > i:
+                        self.img_labels[k] -= 1
+            
+            self.labels.pop(i)
 
-        for i, label in enumerate(self.labels):
+            for child in label_canvas.winfo_children():
+                child.destroy()
+            
+            setup_all_labels()
+            
+            current_label.set(self.img_labels[str(self._curr_img_path)])
+
+        def setup_label(i: int, label: str):
+            label_btn_canvas = tk.Canvas(label_canvas, width = self.canvas_width // 3, height = 30)
+            label_btn_canvas.grid(
+                row = (i // 3) + 1,
+                column = i % 3,
+                padx = 10,
+                pady = 10
+            )
+
             tk.Radiobutton(
-                label_canvas,
+                label_btn_canvas,
                 text = label,
                 indicatoron = 0,
-                width = 36, 
                 padx = 5,
                 pady = 5,
                 variable = current_label,
@@ -140,12 +169,44 @@ class ImageLabeller():
                 overrelief = "raised",
                 offrelief = "groove",
                 font = "Helvetica 11"
-            ).grid(
-                row = i // 3,
-                column = i % 3,
-                padx = 10,
-                pady = 10
-            )
+            ).place(x = 0, relwidth = 0.9)
+
+            tk.Button(
+                label_btn_canvas,
+                text = "X",
+                font = "Helvetica 12 bold",
+                padx = 5,
+                pady = 5,
+                command = lambda: remove_label(i)
+            ).place(relx = 0.9, relwidth = 0.1)
+        
+        def setup_all_labels():
+            for i, label in enumerate(self.labels):
+                setup_label(i, label)
+            window.title(f"Image Labeller - {len(self.image_paths)} images, {len(self.labels)} labels")
+
+        setup_all_labels()
+
+        new_label = tk.StringVar()
+        new_label.set("New Label")
+
+        def add_label(e):
+            label_text = new_label.get().strip()
+
+            if len(label_text) > 0:
+                self.labels.append(label_text)
+                new_label.set("")
+                setup_label(len(self.labels) - 1, label_text)
+                window.title(f"Image Labeller - {len(self.image_paths)} images, {len(self.labels)} labels")
+        
+        new_label_entry = tk.Entry(
+            new_label_canvas,
+            textvariable = new_label,
+            font = "Helvetica 11",
+            justify = "center"
+        )
+        new_label_entry.place(x = 0, relwidth = 1, relheight = 0.9)
+        new_label_entry.bind("<Return>", add_label)
 
         clear_btn = tk.Button(
             btn_canvas,
