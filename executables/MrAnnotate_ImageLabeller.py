@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import mrannotate as anon
 
-image_paths = list(Path.cwd().glob("*.jpg")) + list(Path.cwd().glob("*.png"))
+image_paths = list(Path.cwd().rglob("*.jpg")) + list(Path.cwd().rglob("*.png"))
 
 if len(image_paths) == 0:
     print("No images found in the current directory")
